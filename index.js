@@ -97,7 +97,7 @@ app.get("/api-rest/docentes/:idDocente/materias", (req, res) => {
 
 app.get("/api-rest/docentes/:idDocente/materias/:idMateria", (req, res) => {
   Promise.resolve()
-    .then(() => listarMateriasDeDocente(req.params.idMateria))
+    .then(() => listarMateria(req.params.idMateria))
     .then((materias) => {
       res.json(materias);
     })
@@ -107,6 +107,16 @@ app.get("/api-rest/docentes/:idDocente/materias/:idMateria", (req, res) => {
 });
 
 
+app.get("/api-rest/docentes/:idDocente/materias/:idMateria/horarios", (req, res) => {
+  Promise.resolve()
+    .then(() => listarHorarios(req.params.idhorario))
+    .then((materias) => {
+      res.json(materias);
+    })
+    .catch((err) => {
+      res.status(500).json('Error grave')
+    });
+});
 
 //*********************************************************************************
 //                                      experimental
@@ -267,19 +277,15 @@ function listarDocentesYMaterias() {
 
 }
 
-function listarMaterias() {
+function listarMateria(id) {
 
-  db.materia.findAll({
-    include: [{
-      model: db.docente,
-      as: 'docente',
-    }],
-  })
+  return db.docente.findById(id)
   .then(respuesta => {
-    console.log("\n***Listando materias");
-    console.log(JSON.stringify(respuesta));
-  }).catch(error => console.log(error));
-
+    return respuesta;
+  }).catch(error => {
+    // logger
+    throw error;
+  });
 }
 
 
