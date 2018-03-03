@@ -77,7 +77,7 @@ app.get("/api-rest/docentes/:idDocente", (req, res) => {
       res.status(500).json('Error grave')
     });
 });
-app.get("/docentes/:idDocente/materias", (req, res) => {
+app.get("/api-rest/docentes/:idDocente/materias", (req, res) => {
   Promise.resolve()
     .then(() => listarMateriasDeDocente(req.params.idDocente))
     .then((materias) => {
@@ -90,39 +90,11 @@ app.get("/docentes/:idDocente/materias", (req, res) => {
 
 
 function crearDocente(docente) {
-  docente.fecha_nacimiento = docente.fechaNacimiento;
   return db.docente.create(docente)
   .then(respuesta => {
     console.log("\n***creando docente");
     console.log(JSON.stringify(respuesta));
     return respuesta;
-  }).catch(error => console.log(error));
-}
-
-function crearDocenteYMateria() {
-  const docente = {
-    nombres: 'MARIA',
-    apellidos: 'SUAREZ SUAREZ',
-    fecha_nacimiento: new Date(1990, 11, 31),
-    titulo: 'Lic.',
-    tipo: 'titular'
-  };
-
-  db.docente.create(docente)
-  .then(respuesta => {
-    console.log("\n***creando docente para materia");
-    console.log(JSON.stringify(respuesta));
-
-    const materia = {
-      descripcion: 'Intr. a la programacion',
-      sigla: 'INF-111',
-      fid_docente: respuesta.id_docente
-    } 
-
-    return db.materia.create(materia);
-  }).then(respuesta => {
-    console.log("\n***creando materia");
-    console.log(JSON.stringify(respuesta));
   }).catch(error => console.log(error));
 }
 
@@ -143,19 +115,6 @@ function modificarDocente(nombres, idDocente) {
   }).catch(error => console.log(error));
 
 }
-
-
-function modificarDocenteObjeto() {
-  return db.docente.findById(2)
-  .then(respuesta => {
-    return respuesta.updateAttributes({ nombres: 'MARIA ISABLE' });
-  }).then(respuesta => {
-    console.log("\n***modificando docente|");
-    console.log(JSON.stringify(respuesta));
-  }).catch(error => console.log(error));
-
-}
-
 
 function listarDocentes() {
   return db.docente.findAll()
@@ -297,13 +256,174 @@ app.get("/api-rest/aulas/:idAula", (req, res) => {
       res.status(500).json('Error grave')
     });
 });
-app.get("/aulas/:idAula/materias", (req, res) => {
+
+//++++++++++++++++++++++++++++++++++
+app.get("/api-rest/aulas/:idAula/horarios", (req, res) => {
   Promise.resolve()
-    .then(() => listarMateriasDeAula(req.params.idAula))
-    .then((materias) => {
-      res.json(materias);
+    .then(() => listarHorariosDeAula(req.params.idAula))
+    .then((horarios) => {
+      res.json(horarios);
     })
     .catch((err) => {
       res.status(500).json('Error grave')
     });
 });
+
+
+//+++++++++++++++++++++++++++++++++++++++
+
+//+++++++++++++++++++++++++++++++HORARIOS+++++++++++++++++++++++++++++++
+app.get("/api-rest/horarios", (req, res) => {
+  Promise.resolve()
+    .then(() => listarHorariosPaginado(req.query.limite, req.query.intervalo))
+    .then((listadoDeHorarios) => {
+      res.json(listadoDeHorarios);
+    })
+    .catch(() => res.status(500).json('Error grave'));
+});
+
+
+app.post("/api-rest/horarios", (req, res) => {
+  Promise.resolve()
+    .then(() => crearHorario(req.body))
+    .then((horario) => {
+      res.status(201).json(horario);
+    })
+    .catch(() => res.status(500).json('Error grave'));
+});
+
+
+app.patch("/api-rest/horario/:idHorario", (req, res) => {
+  Promise.resolve()
+    .then(() => modificarHorario(req.body.dia, req.params.idHorario))
+    .then(() => buscarHorario(req.params.idHorario))
+    .then((horarioModificado) => {
+      res.json(horarioModificado);
+    })
+    .catch((err) => {
+      res.status(500).json('Error grave');
+    });
+});
+
+
+app.get("/api-rest/horarios/:idHorario", (req, res) => {
+  Promise.resolve()
+    .then(() => buscarHorario(req.params.idHorario))
+    .then((horario) => {
+      res.json(horario);
+    })  
+    .catch((err) => {
+      res.status(500).json('Error grave')
+    });
+});
+
+
+//funciones aula y horarios
+
+
+
+
+function crearAula(aula) {
+  return db.aula.create(aula)
+  .then(respuesta => {
+    console.log("\n***creando aula");
+    console.log(JSON.stringify(respuesta));
+    return respuesta;
+  }).catch(error => console.log(error));
+}
+
+function modificarAula(nombre, idAula) {
+  return db.aula.update({
+    nombre,
+  }, {
+    where: {
+      id_aula: idAula,
+    },
+    // returning: true,
+  })
+  .then(respuesta => {
+    console.log("\n***modificando aula");
+    console.log(JSON.stringify(respuesta));
+    return respuesta;
+  }).catch(error => console.log(error));
+
+}
+
+function listarHorariosDeAula(idAula) {
+  return db.horario.findAll({where: {fid_aula: idAula}})
+  .then(respuesta => {
+    console.log("\n***Listando horarios");
+    console.log(JSON.stringify(respuesta));
+    return respuesta;
+  }).catch(error => {
+    // logger
+    throw error;
+  });
+}
+
+function listarAulasPaginado(limite, intervalo) {
+  return db.aula.findAll({limit: limite, offset: intervalo})
+  .then(respuesta => {
+    console.log("\n***Listando aula");
+    console.log(JSON.stringify(respuesta));
+    return respuesta;
+  }).catch(error => {
+    // logger
+    throw error;
+  });
+}
+
+function buscarAula(id) {
+  return db.aula.findById(id)
+  .then(respuesta => {
+    return respuesta;
+  }).catch(error => {
+    // logger
+    throw error;
+  });
+}
+
+
+
+function listarAulasYHorarios() {
+
+  return db.aula.findAll({
+    include: [{
+      model: db.horario,
+      as: 'horarios',
+    }],
+  })
+  .then(respuesta => {
+    console.log("\n***Listando aula y horarios");
+    console.log(JSON.stringify(respuesta));
+  }).catch(error => console.log(error));
+
+}
+
+function listarHorarios() {
+
+  db.horario.findAll({
+    include: [{
+      model: db.aula,
+      as: 'aula',
+    }],
+  })
+  .then(respuesta => {
+    console.log("\n***Listando horarios");
+    console.log(JSON.stringify(respuesta));
+  }).catch(error => console.log(error));
+
+}
+
+
+function borrarHorario() {
+
+  db.horario.destroy({
+    where: {id_horario: 2},
+  })
+  .then(respuesta => {
+    console.log("\n***Eliminando horario");
+    console.log(JSON.stringify(respuesta));
+  }).catch(error => console.log(error));
+
+}

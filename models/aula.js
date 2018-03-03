@@ -16,7 +16,15 @@ module.exports = (sequelize, DataType) => {
     }
   });
 
-
+  aula.associate = (models) => {
+    aula.hasMany(models.horario, { 
+      as: 'aula', 
+      foreignKey: {
+        name: 'fid_aula', 
+        allowNull: false
+      }
+    });
+  };
 
   return aula;
 };

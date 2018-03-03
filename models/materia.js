@@ -28,7 +28,17 @@ module.exports = (sequelize, DataType) => {
         allowNull: false
       }
     });
-  }
+  };
+
+  materia.associate = (models) => {
+    materia.hasMany(models.horario, { 
+      as: 'horario', 
+      foreignKey: { 
+        name: 'fid_materia',
+        allowNull: false 
+      } 
+    });
+  };
 
   return materia;
 };
