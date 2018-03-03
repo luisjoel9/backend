@@ -2,6 +2,10 @@ const express = require('express');
 const morgan = require('morgan');
 const bodyParser = require('body-parser');
 
+
+
+
+
 // Iniciamos el servidor
 const app = express();
 
@@ -19,6 +23,8 @@ db.sequelize.sync().done(() => {
   });
 });
 
+
+
 // Habilitamos los logs
 app.use(morgan("dev"));
 
@@ -27,7 +33,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get("/api-rest", (req, res) => {
+app.get("/api-rest/", (req, res) => {
   res.end("***Api-rest***\n");
 });
 
@@ -87,6 +93,88 @@ app.get("/api-rest/docentes/:idDocente/materias", (req, res) => {
       res.status(500).json('Error grave')
     });
 });
+
+
+app.get("/api-rest/docentes/:idDocente/materias/:idMateria", (req, res) => {
+  Promise.resolve()
+    .then(() => listarMateriasDeDocente(req.params.idMateria))
+    .then((materias) => {
+      res.json(materias);
+    })
+    .catch((err) => {
+      res.status(500).json('Error grave')
+    });
+});
+
+
+
+//*********************************************************************************
+//                                      experimental
+//*********************************************************************************
+app.post("/api-rest/docentes/:idDocente/materias", (req, res) => {
+  Promise.resolve()
+    .then(() => crearMateriaDeDocente(req.body,req.params.idDocente))
+    .then((materiaDeDocente) => {
+      res.status(201).json(materiaDeDocente);
+    })
+    .catch((err) => {
+      res.status(500).json('Error grave');
+    });
+});
+
+
+app.post("/api-rest/docentes/:idDocente/materias/:idMateria/horarios", (req, res) => {
+  Promise.resolve()
+    .then(() => crearMateriaDeDocente(req.body,req.params.idDocente))
+    .then((materiaDeDocente) => {
+      res.status(201).json(materiaDeDocente);
+    })
+    .catch((err) => {
+      res.status(500).json('Error grave');
+    });
+});
+
+
+function crearMateriaDeDocente(materia,idDocente) {
+  return db.docente.findById(idDocente)
+  .then(respuesta =>{
+    console.log("\n***creando materia*******************************************");
+    console.log(JSON.stringify(materia));
+
+    var mate = materia;
+
+    mate.fid_docente = idDocente;
+
+    return db.materia.create(mate);
+  })
+  .then(respuesta => {
+    console.log("\n***creando materia*******************************************");
+    console.log(JSON.stringify(respuesta));
+  }).catch(error => console.log(error));
+}
+
+
+function crearHorarioDeMateria(horario,idMateria) {
+  return db.materia.findById(idMateriaa)
+  .then(respuesta =>{
+    console.log("\n***creando horario****************************************");
+    console.log(JSON.stringify(horario));
+
+    var hora = horario;
+
+    hora.fid_materia = idMateria;
+
+    return db.materia.create(hora);
+  })
+  .then(respuesta => {
+    console.log("\n***creando materia*******************************************");
+    console.log(JSON.stringify(respuesta));
+  }).catch(error => console.log(error));
+}
+
+
+
+//-------------------------------------
 
 
 function crearDocente(docente) {
@@ -153,9 +241,6 @@ function listarDocentesPaginado(limite, intervalo) {
 }
 
 function buscarDocente(id) {
-  console.log('+++++++++++++++++++++++++++++++++++++++++++');
-  console.log(id);
-  console.log('+++++++++++++++++++++++++++++++++++++++++++');
   return db.docente.findById(id)
   .then(respuesta => {
     return respuesta;

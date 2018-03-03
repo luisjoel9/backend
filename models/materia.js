@@ -17,7 +17,7 @@ module.exports = (sequelize, DataType) => {
     fid_docente: {
       type: DataType.INTEGER,
       allowNull: false,
-    },
+    }
   });
 
   materia.associate = (models) => {

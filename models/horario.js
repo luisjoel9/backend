@@ -17,6 +17,10 @@ module.exports = (sequelize, DataType) => {
     horaFin: {
       type: DataType.DATE,
       allowNulll: false,
+    },
+    fid_materia: {
+      type: DataType.INTEGER,
+      allowNull: false,
     }
   });
 
