@@ -110,8 +110,8 @@ app.get("/api-rest/docentes/:idDocente/materias/:idMateria", (req, res) => {
 app.get("/api-rest/docentes/:idDocente/materias/:idMateria/horarios", (req, res) => {
   Promise.resolve()
     .then(() => listarHorariosDeMateria(req.params.idMateria))
-    .then((materias) => {
-      res.json(materias);
+    .then((horarios) => {
+      res.json(horarios);
     })
     .catch((err) => {
       res.status(500).json('Error grave')
@@ -135,15 +135,14 @@ app.post("/api-rest/docentes/:idDocente/materias", (req, res) => {
 
 app.post("/api-rest/docentes/:idDocente/materias/:idMateria/horarios", (req, res) => {
   Promise.resolve()
-    .then(() => crearMateriaDeDocente(req.body,req.params.idDocente))
-    .then((materiaDeDocente) => {
-      res.status(201).json(materiaDeDocente);
+    .then(() => crearHorarioDeMateria(req.body,req.params.idMateria))
+    .then((horarioDeMateria) => {
+      res.status(201).json(horarioDeMateria);
     })
     .catch((err) => {
       res.status(500).json('Error grave');
     });
 });
-
 
 function crearMateriaDeDocente(materia,idDocente) {
   return db.docente.findById(idDocente)
@@ -165,7 +164,7 @@ function crearMateriaDeDocente(materia,idDocente) {
 
 
 function crearHorarioDeMateria(horario,idMateria) {
-  return db.materia.findById(idMateriaa)
+  return db.materia.findById(idMateria)
   .then(respuesta =>{
     console.log("\n***creando horario****************************************");
     console.log(JSON.stringify(horario));
@@ -174,10 +173,10 @@ function crearHorarioDeMateria(horario,idMateria) {
 
     hora.fid_materia = idMateria;
 
-    return db.materia.create(hora);
+    return db.horario.create(hora);
   })
   .then(respuesta => {
-    console.log("\n***creando materia*******************************************");
+    console.log("\n***creando hprario*******************************************");
     console.log(JSON.stringify(respuesta));
   }).catch(error => console.log(error));
 }
@@ -239,7 +238,7 @@ function listarMateriasDeDocente(idDocente) {
 }
 
 function listarHorariosDeMateria(idMateria) {
-  return db.horario.findAll({where: {fid_Materia: idMateria}})
+  return db.horario.findAll({where: {fid_materia: idMateria}})
   .then(respuesta => {
     console.log("\n***Listando horarios");
     console.log(JSON.stringify(respuesta));
@@ -249,6 +248,8 @@ function listarHorariosDeMateria(idMateria) {
     throw error;
   });
 }
+
+
 
 
 function listarDocentesPaginado(limite, intervalo) {
@@ -389,24 +390,7 @@ app.get("/api-rest/aulas/:idAula/horarios", (req, res) => {
 //+++++++++++++++++++++++++++++++++++++++
 
 //+++++++++++++++++++++++++++++++HORARIOS+++++++++++++++++++++++++++++++
-app.get("/api-rest/horarios", (req, res) => {
-  Promise.resolve()
-    .then(() => listarHorariosPaginado(req.query.limite, req.query.intervalo))
-    .then((listadoDeHorarios) => {
-      res.json(listadoDeHorarios);
-    })
-    .catch(() => res.status(500).json('Error grave'));
-});
 
-
-app.post("/api-rest/horarios", (req, res) => {
-  Promise.resolve()
-    .then(() => crearHorario(req.body))
-    .then((horario) => {
-      res.status(201).json(horario);
-    })
-    .catch(() => res.status(500).json('Error grave'));
-});
 
 
 app.patch("/api-rest/horario/:idHorario", (req, res) => {
