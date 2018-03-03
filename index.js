@@ -109,7 +109,7 @@ app.get("/api-rest/docentes/:idDocente/materias/:idMateria", (req, res) => {
 
 app.get("/api-rest/docentes/:idDocente/materias/:idMateria/horarios", (req, res) => {
   Promise.resolve()
-    .then(() => listarHorarios(req.params.idhorario))
+    .then(() => listarHorariosDeMateria(req.params.idMateria))
     .then((materias) => {
       res.json(materias);
     })
@@ -238,6 +238,19 @@ function listarMateriasDeDocente(idDocente) {
   });
 }
 
+function listarHorariosDeMateria(idMateria) {
+  return db.horario.findAll({where: {fid_Materia: idMateria}})
+  .then(respuesta => {
+    console.log("\n***Listando horarios");
+    console.log(JSON.stringify(respuesta));
+    return respuesta;
+  }).catch(error => {
+    // logger
+    throw error;
+  });
+}
+
+
 function listarDocentesPaginado(limite, intervalo) {
   return db.docente.findAll({limit: limite, offset: intervalo})
   .then(respuesta => {
@@ -279,7 +292,19 @@ function listarDocentesYMaterias() {
 
 function listarMateria(id) {
 
-  return db.docente.findById(id)
+  return db.materia.findById(id)
+  .then(respuesta => {
+    return respuesta;
+  }).catch(error => {
+    // logger
+    throw error;
+  });
+}
+
+
+function listarHorario(id) {
+
+  return db.horario.findById(id)
   .then(respuesta => {
     return respuesta;
   }).catch(error => {
